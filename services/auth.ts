@@ -33,6 +33,11 @@ export interface ProfileResponse {
   message: string;
 }
 
+export interface PendingProfilesResponse {
+  profiles: (ProfileData & { _id: string; createdAt: string })[];
+  message: string;
+}
+
 // Create axios instance with default config
 const api = axios.create({
   baseURL: API_URL,
@@ -192,6 +197,45 @@ class AuthService {
     } catch (error) {
       if (axios.isAxiosError(error)) {
         throw new Error(error.response?.data?.message || 'Failed to check approval status');
+      }
+      throw error;
+    }
+  }
+
+  // Admin: Get Pending Profiles
+  async getPendingProfiles(): Promise<PendingProfilesResponse> {
+    try {
+      const response = await api.get<PendingProfilesResponse>('/admin/pending-profiles');
+      return response.data;
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        throw new Error(error.response?.data?.message || 'Failed to fetch pending profiles');
+      }
+      throw error;
+    }
+  }
+
+  // Admin: Approve Profile
+  async approveProfile(profileId: string): Promise<{ message: string }> {
+    try {
+      const response = await api.put<{ message: string }>(`/admin/approve-profile/${profileId}`);
+      return response.data;
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        throw new Error(error.response?.data?.message || 'Failed to approve profile');
+      }
+      throw error;
+    }
+  }
+
+  // Admin: Reject Profile
+  async rejectProfile(profileId: string): Promise<{ message: string }> {
+    try {
+      const response = await api.put<{ message: string }>(`/admin/reject-profile/${profileId}`);
+      return response.data;
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        throw new Error(error.response?.data?.message || 'Failed to reject profile');
       }
       throw error;
     }

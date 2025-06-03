@@ -1,4 +1,5 @@
 import { router } from 'expo-router';
+import SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import { ImageBackground, StyleSheet, Text, View } from 'react-native';
 import Animated, {
@@ -13,38 +14,52 @@ import Animated, {
 } from 'react-native-reanimated';
 import { Colors } from '../constants/Colors';
 
+// Keep the splash screen visible while we fetch resources
+SplashScreen.preventAutoHideAsync();
+
 export default function Splash() {
   const scale = useSharedValue(0.8);
   const opacity = useSharedValue(0);
   const slideUp = useSharedValue(50);
 
   useEffect(() => {
-    // Initial fade in
-    opacity.value = withTiming(1, { duration: 1000 });
+    async function prepare() {
+      try {
+        // Initial fade in
+        opacity.value = withTiming(1, { duration: 1000 });
 
-    // Scale animation
-    scale.value = withRepeat(
-      withSequence(
-        withSpring(1.1, { damping: 4 }),
-        withSpring(1, { damping: 4 })
-      ),
-      2,
-      false
-    );
+        // Scale animation
+        scale.value = withRepeat(
+          withSequence(
+            withSpring(1.1, { damping: 4 }),
+            withSpring(1, { damping: 4 })
+          ),
+          2,
+          false
+        );
 
-    // Slide up animation
-    slideUp.value = withTiming(0, {
-      duration: 1000,
-      easing: Easing.out(Easing.cubic)
-    });
+        // Slide up animation
+        slideUp.value = withTiming(0, {
+          duration: 1000,
+          easing: Easing.out(Easing.cubic)
+        });
 
-    // Fade out and navigate
-    opacity.value = withDelay(
-      2500,
-      withTiming(0, { duration: 500 }, () => {
-        router.replace('/');
-      })
-    );
+        // Fade out and navigate
+        opacity.value = withDelay(
+          2500,
+          withTiming(0, { duration: 500 }, () => {
+            router.replace('/');
+          })
+        );
+
+        // Hide splash screen after animations
+        await SplashScreen.hideAsync();
+      } catch (e) {
+        console.warn(e);
+      }
+    }
+
+    prepare();
   }, []);
 
   const animatedStyle = useAnimatedStyle(() => ({

@@ -8,15 +8,42 @@
     "scheme": "autopadi",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "owner": "baebybrielle",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/autopadi-app"
+    },
+    "cli": {
+      "appVersionSource": "remote"
+    },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.autopadi.app",
+      "buildNumber": "1.0.0",
+      "infoPlist": {
+        "NSCameraUsageDescription": "We need access to your camera to take photos of your vehicle",
+        "NSPhotoLibraryUsageDescription": "We need access to your photos to upload vehicle images",
+        "NSLocationWhenInUseUsageDescription": "We need your location to find nearby services"
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.autopadi.app",
+      "versionCode": 1,
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -33,10 +60,31 @@
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
         }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow Autopadi to access your photos to upload vehicle images.",
+          "cameraPermission": "Allow Autopadi to access your camera to take photos of your vehicle."
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow Autopadi to use your location to find nearby services."
+        }
       ]
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "ec9e7ec7-f78b-4598-9948-dd9ad5e61e66"
+      }
     }
   }
 }
