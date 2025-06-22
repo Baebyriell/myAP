@@ -1,15 +1,13 @@
 import { router } from 'expo-router';
 import SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
-import { ImageBackground, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import Animated, {
   Easing,
   useAnimatedStyle,
   useSharedValue,
   withDelay,
-  withRepeat,
   withSequence,
-  withSpring,
   withTiming
 } from 'react-native-reanimated';
 import { Colors } from '../constants/Colors';
@@ -18,41 +16,26 @@ import { Colors } from '../constants/Colors';
 SplashScreen.preventAutoHideAsync();
 
 export default function Splash() {
-  const scale = useSharedValue(0.8);
-  const opacity = useSharedValue(0);
-  const slideUp = useSharedValue(50);
+  const scale = useSharedValue(1);
+  const bgOpacity = useSharedValue(0);
 
   useEffect(() => {
     async function prepare() {
       try {
-        // Initial fade in
-        opacity.value = withTiming(1, { duration: 1000 });
-
-        // Scale animation
-        scale.value = withRepeat(
-          withSequence(
-            withSpring(1.1, { damping: 4 }),
-            withSpring(1, { damping: 4 })
-          ),
-          2,
-          false
+        // Start with dot animation
+        scale.value = withSequence(
+          withTiming(20, { duration: 1000, easing: Easing.bezier(0.25, 0.1, 0.25, 1) }),
+          withTiming(40, { duration: 1000, easing: Easing.bezier(0.25, 0.1, 0.25, 1) })
         );
 
-        // Slide up animation
-        slideUp.value = withTiming(0, {
-          duration: 1000,
-          easing: Easing.out(Easing.cubic)
-        });
+        // Fade in blue background
+        bgOpacity.value = withDelay(1500, withTiming(1, { duration: 1000 }));
 
-        // Fade out and navigate
-        opacity.value = withDelay(
-          2500,
-          withTiming(0, { duration: 500 }, () => {
-            router.replace('/');
-          })
-        );
+        // Navigate after animations complete
+        setTimeout(() => {
+        router.replace('/');
+        }, 3000);
 
-        // Hide splash screen after animations
         await SplashScreen.hideAsync();
       } catch (e) {
         console.warn(e);
@@ -62,63 +45,37 @@ export default function Splash() {
     prepare();
   }, []);
 
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [
-      { scale: scale.value },
-      { translateY: slideUp.value }
-    ],
-    opacity: opacity.value,
+  const dotStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
+
+  const bgStyle = useAnimatedStyle(() => ({
+    opacity: bgOpacity.value,
   }));
 
   return (
-    <ImageBackground
-       source={require('../assets/images/splash.png')}
-      style={styles.container}
-      resizeMode="cover"
-    >
-      <View style={styles.overlay}>
-        <Animated.View style={[styles.content, animatedStyle]}>
-          <Text style={styles.title}>AutoPadi</Text>
-          <Text style={styles.subtitle}>Experience Road Safety</Text>
-        </Animated.View>
+    <View style={styles.container}>
+      <Animated.View style={[styles.background, bgStyle]} />
+      <Animated.View style={[styles.dot, dotStyle]} />
       </View>
-    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  overlay: {
-    flex: 1,
-    backgroundColor: 'rgba(30, 58, 138, 0.85)', // Primary blue with opacity
+    backgroundColor: Colors.neutral.white,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  content: {
-    alignItems: 'center',
-    padding: 20,
+  background: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: Colors.primary.blue,
   },
-  title: {
-    fontSize: 48,
-    fontWeight: 'bold',
-    color: Colors.neutral.white,
-    marginBottom: 20,
-    textAlign: 'center',
-    letterSpacing: 2,
-    textShadowColor: 'rgba(0, 0, 0, 0.3)',
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 4,
-  },
-  subtitle: {
-    fontSize: 24,
-    color: Colors.accent.yellow,
-    textAlign: 'center',
-    fontWeight: '600',
-    letterSpacing: 1,
-    textShadowColor: 'rgba(0, 0, 0, 0.3)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
+  dot: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: Colors.primary.blue,
   },
 }); 
